@@ -1,8 +1,0 @@
-package gimel
-
-sourcedir = "src"
-depends = js, react
-modules = Gimel.Html
-        , Gimel.Attribute
-        , Gimel.Application
-        , Gimel.Engine

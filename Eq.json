@@ -1,0 +1,13 @@
+{
+    "package": "gimel",
+    "version": "0.0.1",
+    "depends": [
+        "contrib",
+        "js-0.0.1",
+        "react-0.0.1"
+    ],
+    "sources": [
+        "https://github.com/DoctorRyner/idris-js",
+        "https://github.com/DoctorRyner/idris-react"
+    ]
+}
