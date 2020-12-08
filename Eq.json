@@ -1,6 +1,7 @@
 {
     "package": "gimel",
     "version": "0.0.1",
+    "target": "javascript",
     "depends": [
         "contrib",
         "js-0.0.1",

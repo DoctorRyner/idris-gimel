@@ -5,3 +5,4 @@ deps/
 *.ipkg
 .cache/
 .parcel-cache/
+.DS_Store
