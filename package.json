@@ -5,10 +5,10 @@
   "license": "MIT",
   "scripts": {
     "build": "sae release",
-    "start-server": "parcel public/index.html",
+    "serve": "parcel public/index.html",
     "watch": "fswatch src | (while read; do yarn build; done)",
     "release": "rm -rf dist && parcel build --no-source-maps public/index.html",
-    "dev": "yarn build && concurrently 'yarn start-server' 'yarn watch'"
+    "dev": "yarn build && concurrently 'yarn serve' 'yarn watch'"
   },
   "dependencies": {
     "concurrently": "^6.2.0",
