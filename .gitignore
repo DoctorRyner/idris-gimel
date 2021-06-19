@@ -1,8 +1,4 @@
-node_modules/
 build/
-dist/
-deps/
-*.ipkg
-.cache/
-.parcel-cache/
-.DS_Store
+DS_Store
+gimel.ipkg
+node_modules/

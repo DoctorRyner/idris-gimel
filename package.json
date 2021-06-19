@@ -1,19 +1,19 @@
 {
   "name": "gimel",
+  "version": "0.0.1",
+  "author": "Ryner Reinhardt <drryner@icloud.com>",
   "license": "MIT",
   "scripts": {
-    "build": "idris2 --build gimel.ipkg && idris2 test/Main.idr --codegen javascript -p react -p js -o index.js",
-    "test": "yarn build && node build/exec/index.js",
+    "build": "sae release",
     "start-server": "parcel public/index.html",
-    "watch": "fswatch test src | (while read; do yarn build; done)",
-    "release": "rm -rf dist && parcel build --no-source-maps public/index.html --no-scope-hoist",
+    "watch": "fswatch src | (while read; do yarn build; done)",
+    "release": "rm -rf dist && parcel build --no-source-maps public/index.html",
     "dev": "yarn build && concurrently 'yarn start-server' 'yarn watch'"
   },
-  "devDependencies": {
-    "concurrently": "^5.3.0"
-  },
   "dependencies": {
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "concurrently": "^6.2.0",
+    "parcel": "^2.0.0-beta.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

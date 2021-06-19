@@ -1,0 +1,12 @@
+package: gimel
+version: 0.0.1
+target: javascript
+
+depends:
+- contrib
+- js-example == 0.0.1
+
+sources:
+- name: js-example
+  url: https://github.com/DoctorRyner/idris-js-example
+  version: 68484e7c36ae6a1fc4f3ee5a8c695602b823a5af
