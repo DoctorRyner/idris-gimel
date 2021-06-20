@@ -52,13 +52,14 @@ call : AnyPtr -> a -> IO ()
 call f = primIO . prim__call f
 
 export
-useState : a -> IO (a, a -> IO ())
-useState init = do
-    stateArr <- primIO $ prim__useState init
-    pure
-        ( unsafeCoerce $ index 0 stateArr
-        , call $ index 1 stateArr
-        )
+useState : a -> IO (a, (a -> a) -> IO ())
+useState initialState = do
+    stateAndSetStateArrayRepresentation <- primIO $ prim__useState initialState
+    let state    = index 0 stateAndSetStateArrayRepresentation
+        setState = index 1 stateAndSetStateArrayRepresentation
+    pure ( unsafeCoerce state
+         , call setState
+         )
 
 %foreign (req "react-dom" "(el, root)" "render(el, root)")
 prim__render : ReactElement -> HtmlElement -> PrimIO ()

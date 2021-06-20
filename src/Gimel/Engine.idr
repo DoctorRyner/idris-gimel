@@ -14,9 +14,9 @@ reactElementFromApplication application = fc $ do
 
     let runEvent : event -> IO ()
         runEvent event = do
-            let nextModel = application.update model event
+            nextModel <- application.update model event
 
-            setState nextModel
+            setState $ const nextModel
 
     pure $
       toReactElement

@@ -7,7 +7,7 @@ export
 data Html event
   = Text String
   | Component ReactClass (List (Attribute event)) (List (Html event))
-  | RawComponent ReactElement
+  | FunctionalComponent ((event -> IO ()) -> ReactElement)
 
 -- Helpers
 
@@ -33,7 +33,7 @@ el' tag = Component (classFromTag tag) []
 
 export
 rawComponent : ReactElement -> Html event
-rawComponent = RawComponent
+rawComponent = FunctionalComponent . const
 
 export
 component : ReactClass -> List (Attribute event) -> List (Html event) -> Html event
@@ -42,9 +42,9 @@ component = Component
 export
 toReactElement : (event -> IO ()) -> Html event -> ReactElement
 toReactElement runEvent = \case
-    Text s                       => text s
-    RawComponent reactElement    => reactElement
-    Component class attrs childs =>
+    Text s                             => text s
+    FunctionalComponent mkReactElement => mkReactElement runEvent
+    Component class attrs childs       =>
         createElement
             class
             (map (toObject runEvent) attrs)
@@ -52,9 +52,9 @@ toReactElement runEvent = \case
 
 export
 fc : IO (Html event) -> Html event
-fc eff = rawComponent $ fc $ do
+fc eff = FunctionalComponent $ \runEvent => fc $ do
     html <- eff
-    pure $ toReactElement (const $ pure ()) html
+    pure $ toReactElement runEvent html
 
 -- Tags
 
