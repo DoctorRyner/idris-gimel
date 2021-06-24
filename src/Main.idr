@@ -39,7 +39,7 @@ update : Model -> Event -> IO Model
 update model = \case
     Inc => do
         setTimeout (print $ show model.counterValue) 2000
-        pure $ {counterValue $= (+  1)} model
+        pure $ {counterValue $= (+ 1)} model
     Dec => pure $ {counterValue $= (+ -1)} model
 
 app : Application Model Event
