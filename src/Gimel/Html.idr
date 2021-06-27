@@ -39,6 +39,17 @@ export
 component : ReactClass -> List (Attribute event) -> List (Html event) -> Html event
 component = Component
 
+%foreign """
+javascript:lambda:() =>
+    ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    )
+"""
+prim__uuidv4 : PrimIO String
+
+uuidv4 : IO String
+uuidv4 = primIO prim__uuidv4
+
 export
 toReactElement : (event -> IO ()) -> Html event -> ReactElement
 toReactElement runEvent = \case
@@ -47,7 +58,7 @@ toReactElement runEvent = \case
     Component class attrs childs       =>
         createElement
             class
-            (map (toObject runEvent) attrs)
+            (map (insert "key" (unsafePerformIO uuidv4) . toObject runEvent) attrs)
             (map (toReactElement runEvent) childs)
 
 export

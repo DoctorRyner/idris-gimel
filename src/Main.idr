@@ -1,16 +1,14 @@
 module Main
 
 import Gimel.Attribute
-import Gimel.Application
 import Gimel.Engine
 import Gimel.Html
 import Gimel.React
+import Gimel.Types
 import Js.Console
-import Js.Dom
-import System
 
 data Event = Inc | Dec
-
+ 
 record Model where
   constructor MkModel
   counterValue : Int
@@ -32,18 +30,20 @@ view model = fc $ do
         [ button_ [onClick Inc] $ text "+"
         , textS model.counterValue
         , button_ [onClick Dec] $ text "-"
-        , h1 [style $ "color" =: "blue"] [text "KEK"]
+        , h1
+            [ style $ fromList
+                [ "color"           =: "blue"
+                , "backgroundColor" =: "black"
+                ]
+            ]
+            [text "KEK"]
         ]
 
-update : Model -> Event -> IO Model
+update : Model -> Event -> Update Model Event
 update model = \case
-    Inc => do
-        setTimeout (print $ show model.counterValue) 2000
-        pure $ {counterValue $= (+ 1)} model
+    Inc => pure $ {counterValue $= (+ 1)} model
+        -- setTimeout (print $ show model.counterValue) 2000
     Dec => pure $ {counterValue $= (+ -1)} model
 
-app : Application Model Event
-app = MkApplication init view update
-
 main : IO ()
-main = render (reactElementFromApplication app) !(getElementById "app-root")
+main = run {init, view, update}

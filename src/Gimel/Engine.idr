@@ -4,21 +4,32 @@ import Data.Vect
 import Gimel.Application
 import Gimel.Html
 import Gimel.React
+import Gimel.Update
 import Js.Console
+import Js.Dom
 import Js.FFI
 
 export
-reactElementFromApplication : Application model event -> ReactElement
+reactElementFromApplication : Application model' event -> ReactElement
 reactElementFromApplication application = fc $ do
-    (model, setState) <- useState application.init
+    (state, setState) <- useState application.init
 
     let runEvent : event -> IO ()
-        runEvent event = do
-            nextModel <- application.update model event
+        runEvent event = setState $ \currentState => unsafePerformIO $ do
+            let update = application.update currentState event
+            pure update.model
 
-            setState $ const nextModel
+    pure $ toReactElement runEvent $ application.view state
 
-    pure $
-      toReactElement
-        runEvent
-        (application.view model)
+export
+runApp : Application model' event -> IO ()
+runApp application =
+  render (reactElementFromApplication application)
+         !(getElementById "app-root")
+
+export
+run : (init : model')
+   -> (view : model' -> Html event)
+   -> (update : model' -> event -> Update model' event)
+   -> IO ()
+run init view update = runApp $ MkApplication {init, view, update}
