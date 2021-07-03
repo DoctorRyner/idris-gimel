@@ -16,16 +16,15 @@ export
 text : String -> ReactElement
 text = unsafeCoerce
 
-%foreign "browser:lambda:(x, props, children) => require('react').createElement(x, props, children)"
-js_createElement : ReactClass -> Object -> Array ReactElement -> ReactElement
-
-%foreign "browser:lambda:(x, props) => require('react').createElement(x, props)"
-js_createElementChildless : ReactClass -> Object -> ReactElement
+%foreign """
+browser:lambda:(x, props, children) =>
+    require('react').createElement(x, props, ...__prim_idris2js_array(children))
+"""
+rawCreateElement : ReactClass -> Object -> List ReactElement -> ReactElement
 
 export
 createElement : ReactClass -> List Object -> List ReactElement -> ReactElement
-createElement x props []       = js_createElementChildless x (fromList props)
-createElement x props children = js_createElement x (fromList props) (fromList children)
+createElement x props = rawCreateElement x (fromList props)
 
 export
 %foreign (js "x => x")

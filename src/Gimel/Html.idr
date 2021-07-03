@@ -8,8 +8,20 @@ export
 data Html event
   = Text String
   | Component ReactClass (List (Attribute event)) (List (Html event))
-  | FunctionalComponent ((event -> IO ()) -> ReactElement)
+  | FunctionalComponent (IO (Html event))
   | RawElement ReactElement
+
+export
+frag : List (Html event) -> Html event
+frag = Component fragmentClass []
+
+export
+Semigroup (Html event) where
+    (<+>) x y = frag [x, y] 
+
+export
+Monoid (Html event) where
+    neutral = frag []
 
 -- Helpers
 
@@ -34,8 +46,8 @@ el' : String -> List (Html event) -> Html event
 el' tag = Component (classFromTag tag) []
 
 export
-rawComponent : ReactElement -> Html event
-rawComponent = FunctionalComponent . const
+fc : IO (Html event) -> Html event
+fc = FunctionalComponent
 
 export
 rawElement : ReactElement -> Html event
@@ -46,26 +58,18 @@ component : ReactClass -> List (Attribute event) -> List (Html event) -> Html ev
 component = Component
 
 export
-frag : List (Html event) -> Html event
-frag = component fragmentClass []
-
-export
 toReactElement : (event -> IO ()) -> Html event -> ReactElement
 toReactElement runEvent = \case
     Text s                             => text s
-    FunctionalComponent mkReactElement => mkReactElement runEvent
     RawElement element                 => element
+    FunctionalComponent m              => unsafePerformIO $ do
+        html <- m
+        pure $ toReactElement runEvent html
     Component class attrs childs       =>
         createElement
             class
             (map (toObject runEvent) attrs)
             (map (toReactElement runEvent) childs)
-
-export
-fc : IO (Html event) -> Html event
-fc eff = FunctionalComponent $ \runEvent => fc $ do
-    html <- eff
-    pure $ toReactElement runEvent html
 
 -- Tags
 

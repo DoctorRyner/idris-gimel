@@ -6,27 +6,22 @@ import Gimel.Engine
 import Gimel.Html
 import Gimel.React
 import Gimel.Types
-import Js.Console
-import Js.Timeout
 
 data Event = Inc | Dec
- 
+
 record Model where
   constructor MkModel
   counterValue : Int
 
 init : Model
-init = MkModel 0
-
-inputTest : Html Event
-inputTest = fc $ pure $ el "input" [] []
+init = MkModel {counterValue = 0}
 
 view : Model -> Html Event
-view model = div []
-    [ button [onClick Inc] [text "+"]
+view model = concat
+    [ h1' [text "Counter"]
+    , button [onClick Inc] [text "+"]
     , textS model.counterValue
     , button [onClick Dec] [text "-"]
-    , inputTest
     ]
 
 update : Model -> Event -> Update Model Event
