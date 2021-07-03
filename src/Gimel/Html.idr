@@ -2,12 +2,14 @@ module Gimel.Html
 
 import Gimel.Attribute
 import Gimel.React
+import Js.Uuid
 
 export
 data Html event
   = Text String
   | Component ReactClass (List (Attribute event)) (List (Html event))
   | FunctionalComponent ((event -> IO ()) -> ReactElement)
+  | RawElement ReactElement
 
 -- Helpers
 
@@ -36,29 +38,27 @@ rawComponent : ReactElement -> Html event
 rawComponent = FunctionalComponent . const
 
 export
+rawElement : ReactElement -> Html event
+rawElement = RawElement
+
+export
 component : ReactClass -> List (Attribute event) -> List (Html event) -> Html event
 component = Component
 
-%foreign """
-javascript:lambda:() =>
-    ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-    )
-"""
-prim__uuidv4 : PrimIO String
-
-uuidv4 : IO String
-uuidv4 = primIO prim__uuidv4
+export
+frag : List (Html event) -> Html event
+frag = component fragmentClass []
 
 export
 toReactElement : (event -> IO ()) -> Html event -> ReactElement
 toReactElement runEvent = \case
     Text s                             => text s
     FunctionalComponent mkReactElement => mkReactElement runEvent
+    RawElement element                 => element
     Component class attrs childs       =>
         createElement
             class
-            (map (insert "key" (unsafePerformIO uuidv4) . toObject runEvent) attrs)
+            (map (toObject runEvent) attrs)
             (map (toReactElement runEvent) childs)
 
 export

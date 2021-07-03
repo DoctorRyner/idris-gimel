@@ -4,6 +4,7 @@ import Js.Array
 import Js.Object
 import Js.Dom
 import Js.FFI
+import Js.Uuid
 
 public export
 data ReactElement : Type
@@ -15,12 +16,16 @@ export
 text : String -> ReactElement
 text = unsafeCoerce
 
-%foreign (req "react" "(x, props, children)" "createElement(x, props, children)")
+%foreign "browser:lambda:(x, props, children) => require('react').createElement(x, props, children)"
 js_createElement : ReactClass -> Object -> Array ReactElement -> ReactElement
+
+%foreign "browser:lambda:(x, props) => require('react').createElement(x, props)"
+js_createElementChildless : ReactClass -> Object -> ReactElement
 
 export
 createElement : ReactClass -> List Object -> List ReactElement -> ReactElement
-createElement x props = js_createElement x (fromList props) . fromList
+createElement x props []       = js_createElementChildless x (fromList props)
+createElement x props children = js_createElement x (fromList props) (fromList children)
 
 export
 %foreign (js "x => x")
@@ -31,8 +36,12 @@ el : String -> List Object -> List ReactElement -> ReactElement
 el tag = createElement (classFromTag tag)
 
 export
-%foreign (req "react" "f" "createElement(f, {}, [])")
 fc : IO ReactElement -> ReactElement
+fc m = createElement (unsafeCoerce m) [] []
+
+export
+%foreign "browser:lambda:() => require('react').Fragment"
+fragmentClass : ReactClass
 
 %foreign (req "react" "f" "useEffect(f)")
 prim__useEffect : IO () -> PrimIO ()

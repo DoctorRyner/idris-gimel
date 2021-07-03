@@ -1,11 +1,13 @@
 module Main
 
 import Gimel.Attribute
+import Gimel.Cmd
 import Gimel.Engine
 import Gimel.Html
 import Gimel.React
 import Gimel.Types
 import Js.Console
+import Js.Timeout
 
 data Event = Inc | Dec
  
@@ -16,33 +18,20 @@ record Model where
 init : Model
 init = MkModel 0
 
-%foreign "javascript:lambda:(f, timeout) => setTimeout(f, timeout)"
-prim__setTimeout : IO () -> Double -> PrimIO ()
-
-setTimeout : IO () -> Double -> IO ()
-setTimeout f = primIO . prim__setTimeout f
+inputTest : Html Event
+inputTest = fc $ pure $ el "input" [] []
 
 view : Model -> Html Event
-view model = fc $ do
-    useEffect $ print "Idris Gimel useEffect react hook test"
-
-    pure $ div'
-        [ button_ [onClick Inc] $ text "+"
-        , textS model.counterValue
-        , button_ [onClick Dec] $ text "-"
-        , h1
-            [ style $ fromList
-                [ "color"           =: "blue"
-                , "backgroundColor" =: "black"
-                ]
-            ]
-            [text "KEK"]
-        ]
+view model = div []
+    [ button [onClick Inc] [text "+"]
+    , textS model.counterValue
+    , button [onClick Dec] [text "-"]
+    , inputTest
+    ]
 
 update : Model -> Event -> Update Model Event
 update model = \case
-    Inc => pure $ {counterValue $= (+ 1)} model
-        -- setTimeout (print $ show model.counterValue) 2000
+    Inc => pure $ {counterValue $= (+  1)} model
     Dec => pure $ {counterValue $= (+ -1)} model
 
 main : IO ()

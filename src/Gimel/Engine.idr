@@ -2,12 +2,14 @@ module Gimel.Engine
 
 import Data.Vect
 import Gimel.Application
+import Gimel.Cmd
 import Gimel.Html
 import Gimel.React
 import Gimel.Update
 import Js.Console
 import Js.Dom
 import Js.FFI
+import Js.Timeout
 
 export
 reactElementFromApplication : Application model' event -> ReactElement
@@ -17,9 +19,13 @@ reactElementFromApplication application = fc $ do
     let runEvent : event -> IO ()
         runEvent event = setState $ \currentState => unsafePerformIO $ do
             let update = application.update currentState event
+
+            -- Run cmds asynchronously
+            traverse_ (\(MkCmd f) => setTimeout (f runEvent) 0) update.cmds
+
             pure update.model
 
-    pure $ toReactElement runEvent $ application.view state
+    pure $ toReactElement runEvent (application.view state)
 
 export
 runApp : Application model' event -> IO ()

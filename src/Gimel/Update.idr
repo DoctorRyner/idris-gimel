@@ -27,3 +27,7 @@ Monad (UpdateM event) where
 export
 none : model' -> event -> Update model' event
 none model = pure . const model
+
+export
+withCmds : model' -> List (Cmd event) -> Update model' event
+withCmds = MkUpdateM
