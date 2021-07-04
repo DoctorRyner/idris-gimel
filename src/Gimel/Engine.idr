@@ -6,6 +6,7 @@ import Gimel.Cmd
 import Gimel.Html
 import Gimel.React
 import Gimel.Update
+import Gimel.Sub
 import Js.Console
 import Js.Dom
 import Js.FFI
@@ -37,5 +38,6 @@ export
 run : (init : model')
    -> (view : model' -> Html event)
    -> (update : model' -> event -> Update model' event)
+   -> (subs : Sub model' event)
    -> IO ()
-run init view update = runApp $ MkApplication {init, view, update}
+run init view update subs = runApp $ MkApplication {init, view, update, subs}
