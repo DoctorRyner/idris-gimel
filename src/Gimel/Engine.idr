@@ -34,7 +34,7 @@ reactElementFromApplication2 : Application model' event -> ReactElement
 reactElementFromApplication2 application = fc $ do
     modelRef <- newIORef application.init
 
-    (_, modifyState) <- useState application.init
+    (state, modifyState) <- useState application.init
 
     let runCmds : List (Cmd event) -> (event -> IO ()) -> IO ()
         runCmds cmds runEvent = traverse_ (\(MkCmd f) => setTimeout (f runEvent) 0) cmds
@@ -42,21 +42,21 @@ reactElementFromApplication2 application = fc $ do
         runEvent : event -> IO ()
         runEvent event = do
             model <- readIORef modelRef
-            
+
             let update = application.update model event
 
-            writeIORef modelRef model
-
-            runCmds update.cmds runEvent
+            writeIORef modelRef update.model
 
             modifyState $ const update.model
 
-    pure $ toReactElement runEvent (application.view application.init)
+            runCmds update.cmds runEvent
+
+    pure $ toReactElement runEvent (application.view state)
 
 export
 runApp : Application model' event -> IO ()
 runApp application =
-  render (reactElementFromApplication application)
+  render (reactElementFromApplication2 application)
          !(getElementById "app-root")
 
 export
