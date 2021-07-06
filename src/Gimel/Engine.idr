@@ -34,22 +34,20 @@ reactElementFromApplication2 : Application model' event -> ReactElement
 reactElementFromApplication2 application = fc $ do
     modelRef <- newIORef application.init
 
-    (state, modifyState) <- useState application.init
+    (state, setState) <- useState application.init
 
     let runCmds : List (Cmd event) -> (event -> IO ()) -> IO ()
         runCmds cmds runEvent = traverse_ (\(MkCmd f) => setTimeout (f runEvent) 0) cmds
 
         runEvent : event -> IO ()
-        runEvent event = do
-            model <- readIORef modelRef
+        runEvent event = setState $ \currentState => unsafePerformIO $ do
+            let update = application.update currentState event
 
-            let update = application.update model event
+            setTimeout (traverse_ (\(MkCmd f) => setTimeout (f runEvent) 0) update.cmds) 0
 
             writeIORef modelRef update.model
 
-            modifyState $ const update.model
-
-            runCmds update.cmds runEvent
+            pure update.model
 
     pure $ toReactElement runEvent (application.view state)
 
