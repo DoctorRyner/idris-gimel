@@ -11,6 +11,7 @@ import Js.Console
 import Js.Dom
 import Js.FFI
 import Js.Timeout
+import Data.IORef
 
 export
 reactElementFromApplication : Application model' event -> ReactElement
@@ -27,6 +28,30 @@ reactElementFromApplication application = fc $ do
             pure update.model
 
     pure $ toReactElement runEvent (application.view state)
+
+export
+reactElementFromApplication2 : Application model' event -> ReactElement
+reactElementFromApplication2 application = fc $ do
+    modelRef <- newIORef application.init
+
+    (_, modifyState) <- useState application.init
+
+    let runCmds : List (Cmd event) -> (event -> IO ()) -> IO ()
+        runCmds cmds runEvent = traverse_ (\(MkCmd f) => setTimeout (f runEvent) 0) cmds
+
+        runEvent : event -> IO ()
+        runEvent event = do
+            model <- readIORef modelRef
+            
+            let update = application.update model event
+
+            writeIORef modelRef model
+
+            runCmds update.cmds runEvent
+
+            modifyState $ const update.model
+
+    pure $ toReactElement runEvent (application.view application.init)
 
 export
 runApp : Application model' event -> IO ()

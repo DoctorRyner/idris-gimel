@@ -6,10 +6,10 @@ import Js.Uuid
 
 export
 data Html event
-  = Text String
-  | Component ReactClass (List (Attribute event)) (List (Html event))
-  | FunctionalComponent (IO (Html event))
-  | RawElement ReactElement
+    = Text String
+    | Component ReactClass (List (Attribute event)) (List (Html event))
+    | FunctionalComponent (IO (Html event))
+    | RawElement ReactElement
 
 export
 frag : List (Html event) -> Html event
